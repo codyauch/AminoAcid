@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import { CSVLink } from "react-csv"
 import './App.css';
 
 class App extends Component {
@@ -8,12 +9,15 @@ class App extends Component {
     super(props);
     this.state = {
       input: "",
-      tableData: [[], []]
+      tableData: [[], []],
+      csvData: [[], []]
     };
 
     // tableData Structure:
     // [0] -> column data
     // [1] -> row data
+
+    this.downloadRef = React.createRef();
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -22,6 +26,8 @@ class App extends Component {
     this.getRetentionTime = this.getRetentionTime.bind(this);
     this.getCharge = this.getCharge.bind(this);
     this.populateTable = this.populateTable.bind(this);
+    this.packageTableData = this.packageTableData.bind(this);
+    this.processDownload = this.processDownload.bind(this);
 
 
     // Set up the columns for the table
@@ -57,7 +63,30 @@ class App extends Component {
 
   handleExport(event) {
     event.preventDefault();
-    // TODO: implement
+    
+    this.packageTableData(); // rearrange data to make it more convenient for csv
+    this.processDownload(); // trigger a download of the csv
+  }
+
+  packageTableData(){
+    var csvData = this.state.tableData[1];
+    var csvHeaders = [];
+
+    // Prepare csv headers
+    for(var header of this.state.tableData[0]){
+      csvHeaders.push({label: header.headerName, key: header.field});
+    }
+
+    // Update the csvData state variable with the reformatted headers/data
+    var temp = this.state.csvData;
+    temp[0] = csvHeaders;
+    temp[1] = csvData;
+    this.setState({csvData: temp});
+  }
+
+  processDownload(){
+    console.log((this.downloadRef.current));
+    this.downloadRef.current.link.click();
   }
 
   /**
@@ -209,6 +238,7 @@ class App extends Component {
     this.setState({tableData: tableDataWithRows});
   }
 
+
   render() {
     return (<div className="App">
       <h1>HILIC Peptides Analysis</h1>
@@ -225,6 +255,8 @@ class App extends Component {
       <div style={{height: 400, width: '100%'}}>
         <DataGrid rows={this.state.tableData[1]} columns={this.state.tableData[0]} />
       </div>
+      {/* <CSVLink ref={this.downloadRef} target={"_blank"} headers={[{label: "Name", key:"name"}, {label: "Age", key: "age"}]} data={[{name: "Bob", age: 30}, {name: "Bart", age: 13}]} headers={this.state.csvData[0]} filename="HILIC_Peptide_Analysis.csv"></CSVLink> */}
+      <CSVLink ref={this.downloadRef} data={this.state.csvData[1]} headers={this.state.csvData[0]} filename="HILIC_Peptide_Analysis.csv"></CSVLink>
     </div>);
   }
 }
