@@ -17,7 +17,11 @@ class App extends Component {
     // [0] -> column data
     // [1] -> row data
 
-    this.downloadRef = React.createRef();
+    // csvData Structure
+    // [0] -> header data
+    // [1] -> row data
+
+    this.downloadRef = React.createRef(); // reference to the CSVLink component
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -57,8 +61,7 @@ class App extends Component {
   handleChange(event) {
     event.preventDefault();
 
-    // Update the input state variable with whatever is entered in the textbox
-    this.setState({ input: event.target.value });
+    this.setState({ input: event.target.value }); // update the state variable "input" with whatever is entered in the textbox
   }
 
   handleExport(event) {
@@ -68,6 +71,11 @@ class App extends Component {
     this.processDownload(); // trigger a download of the csv
   }
 
+  /**
+   * packageTableData()
+   * 
+   * PURPOSE: format the table data to prepare it for export to csv
+   */
   packageTableData(){
     var csvData = this.state.tableData[1];
     var csvHeaders = [];
@@ -78,14 +86,18 @@ class App extends Component {
     }
 
     // Update the csvData state variable with the reformatted headers/data
-    var temp = this.state.csvData;
-    temp[0] = csvHeaders;
-    temp[1] = csvData;
-    this.setState({csvData: temp});
+    var formattedCSVData = this.state.csvData;
+    formattedCSVData[0] = csvHeaders;
+    formattedCSVData[1] = csvData;
+    this.setState({csvData: formattedCSVData});
   }
 
+  /**
+   * processDownload()
+   * 
+   * PURPOSE: trigger the download of the csv file by clicking the CSVLink
+   */
   processDownload(){
-    console.log((this.downloadRef.current));
     this.downloadRef.current.link.click();
   }
 
@@ -101,14 +113,14 @@ class App extends Component {
     if(inputString === undefined)
       return [];
 
+    // Set string to all uppercase
+    inputString = inputString.toUpperCase();
     
     // Split the input string by commas into an array
-    var peptides = inputString.split(",");
+    var peptides = inputString.split(/[ ,]+/);
 
-    // Remove whitespace from peptides
-    for (var i = 0; i < peptides.length; i++) {
-      peptides[i] = peptides[i].trim().toUpperCase();
-    }
+    // Remove any empty strings
+    peptides = peptides.filter(String);
 
     // Return the parsed peptide list
     return peptides;
@@ -224,7 +236,7 @@ class App extends Component {
     for(var i=0; i<peptideList.length; i++){
       rows.push({
         id: i, 
-        index: i, 
+        index: i+1, 
         seq: peptideList[i], 
         length: peptideList[i].length, 
         charge: this.getCharge(peptideList[i]), 
@@ -255,7 +267,6 @@ class App extends Component {
       <div style={{height: 400, width: '100%'}}>
         <DataGrid rows={this.state.tableData[1]} columns={this.state.tableData[0]} />
       </div>
-      {/* <CSVLink ref={this.downloadRef} target={"_blank"} headers={[{label: "Name", key:"name"}, {label: "Age", key: "age"}]} data={[{name: "Bob", age: 30}, {name: "Bart", age: 13}]} headers={this.state.csvData[0]} filename="HILIC_Peptide_Analysis.csv"></CSVLink> */}
       <CSVLink ref={this.downloadRef} data={this.state.csvData[1]} headers={this.state.csvData[0]} filename="HILIC_Peptide_Analysis.csv"></CSVLink>
     </div>);
   }
