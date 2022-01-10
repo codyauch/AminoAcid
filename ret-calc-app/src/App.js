@@ -52,6 +52,7 @@ class App extends Component {
 
     // Only process the peptide string if it is not empty
     if (peptide === "") {
+      this.setState({estRetTime: 0});
       return;
     }
 
