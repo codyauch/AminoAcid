@@ -55,7 +55,7 @@ class App extends Component {
 
     // Get the list of peptides entered, analyze and fill the table with the results
     var peptideList = this.parsePeptides(this.state.input);
-    this.populateTable(peptideList);
+    this.setState({tableData: this.populateTable(peptideList)});
   }
 
   handleChange(event) {
@@ -67,7 +67,7 @@ class App extends Component {
   handleExport(event) {
     event.preventDefault();
     
-    this.packageTableData(); // rearrange data to make it more convenient for csv
+    this.setState({csvData: this.packageTableData()}); // update state with rearranged data to make it more convenient for csv
     this.processDownload(); // trigger a download of the csv
   }
 
@@ -75,10 +75,13 @@ class App extends Component {
    * packageTableData()
    * 
    * PURPOSE: format the table data to prepare it for export to csv
+   * 
+   * @returns {Array} 2D array containing the header data [0] and row data [1]
    */
   packageTableData(){
     var csvData = this.state.tableData[1];
     var csvHeaders = [];
+    var packagedData = [];
 
     // Prepare csv headers
     for(var header of this.state.tableData[0]){
@@ -86,10 +89,11 @@ class App extends Component {
     }
 
     // Update the csvData state variable with the reformatted headers/data
-    var formattedCSVData = this.state.csvData;
-    formattedCSVData[0] = csvHeaders;
-    formattedCSVData[1] = csvData;
-    this.setState({csvData: formattedCSVData});
+    packagedData = this.state.csvData;
+    packagedData[0] = csvHeaders;
+    packagedData[1] = csvData;
+
+    return packagedData;
   }
 
   /**
@@ -226,6 +230,7 @@ class App extends Component {
    * PURPOSE: fill the table with the data in peptideList
    * 
    * @param {array} peptideList array of peptides to analyze and enter into table
+   * @returns {Array} 2D array containing column data [0] and row data [1]
    */
   populateTable(peptideList){
     // Check if the array of peptides is undefined before proceeding
@@ -247,7 +252,8 @@ class App extends Component {
     // Add the row data to the tableData state variable
     var tableDataWithRows = this.state.tableData;
     tableDataWithRows[1] = rows;
-    this.setState({tableData: tableDataWithRows});
+
+    return tableDataWithRows;
   }
 
 
