@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import './App.css';
-import Header from "./Header.js"
-import Footer from "./Footer.js"
-import Calculator from "./Calculator.js"
+import Header from "./components/Header/Header.js";
+import Footer from "./components/Footer/Footer.js";
+import Calculator from "./components/Calculator/Calculator.js";
 
 class App extends Component {
 
@@ -10,12 +10,11 @@ class App extends Component {
     super(props);
   }
 
-
   render() {
     return (
     <div className="App">
       <Header/>
-      <Calculator/>
+      {/* <Calculator/> */}
       <Footer/>
     </div>
     );
